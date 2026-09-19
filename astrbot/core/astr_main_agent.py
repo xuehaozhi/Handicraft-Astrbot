@@ -1435,7 +1435,10 @@ async def collect_initial_request(
             req.contexts = (
                 list(req.contexts) if isinstance(req.contexts, list) else req.contexts
             )
-            if req.conversation:
+            # Reuse already-parsed contexts when available. Re-parsing the full
+            # conversation history on every recycled provider request is a major
+            # memory/CPU hotspot for long conversations.
+            if req.conversation and not req.contexts:
                 req.contexts = json.loads(req.conversation.history)
         else:
             req = ProviderRequest()
