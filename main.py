@@ -172,5 +172,15 @@ if __name__ == "__main__":
     log_broker = LogBroker()
     LogManager.set_queue_handler(logger, log_broker)
 
+    # Enable uvloop on Linux to lower event-loop memory and overhead. Falls
+    # back to the default asyncio policy elsewhere or when uvloop is missing.
+    if sys.platform.startswith("linux"):
+        try:
+            import uvloop
+
+            asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+        except Exception:
+            pass
+
     # 只使用一次 asyncio.run()
     asyncio.run(main_async(args.webui_dir))

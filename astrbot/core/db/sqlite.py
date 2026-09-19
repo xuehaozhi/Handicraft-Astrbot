@@ -87,7 +87,9 @@ class SQLiteDatabase(BaseDatabase):
             await conn.execute(text("PRAGMA journal_mode=WAL"))
             await conn.execute(text("PRAGMA busy_timeout=30000"))
             await conn.execute(text("PRAGMA synchronous=NORMAL"))
-            await conn.execute(text("PRAGMA cache_size=20000"))
+            # Page-cache cap in 4KiB pages. Lowered from 20000 (~80MB) to bound
+            # the worst-case SQLite cache memory for this low-frequency workload.
+            await conn.execute(text("PRAGMA cache_size=8000"))
             await conn.execute(text("PRAGMA temp_store=MEMORY"))
             await conn.execute(text("PRAGMA mmap_size=134217728"))
             await conn.execute(text("PRAGMA optimize"))

@@ -6,6 +6,7 @@
 """
 
 import asyncio
+import gc
 import traceback
 
 from astrbot.core import LogBroker, logger
@@ -32,6 +33,10 @@ class InitialLoader:
             logger.critical(traceback.format_exc())
             logger.critical(f"😭 Failed to initialize AstrBot: {e} !!!")
             return
+
+        # Freeze startup-time objects so later GC cycles scan a smaller heap,
+        # reducing memory pressure during long-running operation (CPython 3.7+).
+        gc.freeze()
 
         core_task = core_lifecycle.start()
 
